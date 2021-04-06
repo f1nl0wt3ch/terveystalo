@@ -9,8 +9,9 @@ var CommonConfig_1 = require("../config/CommonConfig");
 var UnitService_1 = require("../service/UnitService");
 var unitRouter = express_1.default.Router();
 exports.unitRouter = unitRouter;
+var unitService = new UnitService_1.UnitService();
 unitRouter.get(CommonConfig_1.CommonConfig.BASE_URL + "/units", function (req, res) {
-    UnitService_1.findAllUnits(function (err, unitArr) {
+    unitService.findAllUnits(function (err, unitArr) {
         if (err) {
             return res.status(500).json({
                 msg: err.message

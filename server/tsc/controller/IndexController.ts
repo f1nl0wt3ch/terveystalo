@@ -1,11 +1,12 @@
 import express, {Request, Response} from "express";
 import {CommonConfig} from "../config/CommonConfig";
-import {findAllIndexes} from "../service/IndexService"
 import {IndexModel} from "../model/IndexModel";
+import {IndexService, IndexServiceInterface} from "../service/IndexService";
 
 const indexRouter = express.Router();
+const indexService: IndexServiceInterface = new IndexService()
 indexRouter.get(CommonConfig.BASE_URL+"/indexes", (req: Request, res: Response) => {
-    findAllIndexes((err: Error, indexArr: Array<IndexModel>) => {
+    indexService.findAllIndexes((err: Error, indexArr: Array<IndexModel>) => {
         if(err) {
             return res.status(500).json({
                 msg: err.message

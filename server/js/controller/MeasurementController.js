@@ -45,9 +45,10 @@ var CommonConfig_1 = require("../config/CommonConfig");
 var MeasurementService_1 = require("../service/MeasurementService");
 var measurementRouter = express_1.default.Router();
 exports.measurementRouter = measurementRouter;
+var measureServiceInterface = new MeasurementService_1.MeasurementService();
 measurementRouter.get(CommonConfig_1.CommonConfig.BASE_URL + "/measurements", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        MeasurementService_1.findAllMeasurements(function (err, measurementArr) {
+        measureServiceInterface.findAllMeasurements(function (err, measurementArr) {
             if (err) {
                 return res.status(500).json({
                     msg: err.message
@@ -67,21 +68,28 @@ measurementRouter.get(CommonConfig_1.CommonConfig.BASE_URL + "/measurements", fu
 measurementRouter.get(CommonConfig_1.CommonConfig.BASE_URL + "/measurement/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var id;
     return __generator(this, function (_a) {
-        id = Number(req.params.id);
-        MeasurementService_1.findMeasurementById(id, function (err, measurement) {
-            if (err) {
-                return res.status(500).json({
-                    msg: err.message
-                });
-            }
-            else if (!measurement) {
-                res.status(404).json({
-                    msg: "Not found!"
-                });
-            }
-            else
-                res.status(200).json(measurement);
-        });
+        if (isNaN(Number(req.params.id))) {
+            res.status(401).json({
+                msg: "Bad request!"
+            });
+        }
+        else {
+            id = Number(req.params.id);
+            measureServiceInterface.findMeasurementById(id, function (err, measurement) {
+                if (err) {
+                    return res.status(500).json({
+                        msg: err.message
+                    });
+                }
+                else if (!measurement) {
+                    res.status(404).json({
+                        msg: "Not found!"
+                    });
+                }
+                else
+                    res.status(200).json(measurement);
+            });
+        }
         return [2 /*return*/];
     });
 }); });
@@ -89,7 +97,7 @@ measurementRouter.post(CommonConfig_1.CommonConfig.BASE_URL + "/measurement", fu
     var insertedMeasurement;
     return __generator(this, function (_a) {
         insertedMeasurement = req.body.data;
-        MeasurementService_1.insertMeasurement(insertedMeasurement, function (err, insertedId) {
+        measureServiceInterface.insertMeasurement(insertedMeasurement, function (err, insertedId) {
             if (err) {
                 return res.status(500).json({
                     msg: err.message
@@ -104,7 +112,7 @@ measurementRouter.put(CommonConfig_1.CommonConfig.BASE_URL + "/measurement", fun
     var updatedMeasurement;
     return __generator(this, function (_a) {
         updatedMeasurement = req.body.data;
-        MeasurementService_1.updateMeasurementById(updatedMeasurement, function (err, changedRows) {
+        measureServiceInterface.updateMeasurementById(updatedMeasurement, function (err, changedRows) {
             if (err) {
                 return res.status(500).json({
                     msg: err.message
@@ -119,7 +127,7 @@ measurementRouter.delete(CommonConfig_1.CommonConfig.BASE_URL + "/measurement", 
     var deleteIdArr;
     return __generator(this, function (_a) {
         deleteIdArr = req.body.data;
-        MeasurementService_1.deleteMeasurementById(deleteIdArr, function (err, affectedRows) {
+        measureServiceInterface.deleteMeasurementById(deleteIdArr, function (err, affectedRows) {
             if (err) {
                 return res.status(500).json({
                     msg: err.message

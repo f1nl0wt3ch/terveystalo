@@ -9,8 +9,9 @@ var CommonConfig_1 = require("../config/CommonConfig");
 var IndexService_1 = require("../service/IndexService");
 var indexRouter = express_1.default.Router();
 exports.indexRouter = indexRouter;
+var indexService = new IndexService_1.IndexService();
 indexRouter.get(CommonConfig_1.CommonConfig.BASE_URL + "/indexes", function (req, res) {
-    IndexService_1.findAllIndexes(function (err, indexArr) {
+    indexService.findAllIndexes(function (err, indexArr) {
         if (err) {
             return res.status(500).json({
                 msg: err.message

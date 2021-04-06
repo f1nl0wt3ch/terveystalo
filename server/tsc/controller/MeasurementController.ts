@@ -1,18 +1,15 @@
 import express, {Request, Response} from "express";
 import {CommonConfig} from "../config/CommonConfig";
 import {
-    findAllMeasurements,
-    findMeasurementById,
-    insertMeasurement,
-    updateMeasurementById,
-    deleteMeasurementById
+    MeasurementService, MeasurementServiceInterface
 } from "../service/MeasurementService"
 import {MeasurementModel} from "../model/MeasurementModel";
 
 const measurementRouter = express.Router();
+const measureServiceInterface: MeasurementServiceInterface = new MeasurementService()
 
 measurementRouter.get(CommonConfig.BASE_URL + "/measurements", async (req: Request, res: Response) => {
-    findAllMeasurements((err: Error, measurementArr: Array<MeasurementModel>) => {
+    measureServiceInterface.findAllMeasurements((err: Error, measurementArr: Array<MeasurementModel>) => {
         if (err) {
             return res.status(500).json({
                 msg: err.message
@@ -26,23 +23,29 @@ measurementRouter.get(CommonConfig.BASE_URL + "/measurements", async (req: Reque
 })
 
 measurementRouter.get(CommonConfig.BASE_URL + "/measurement/:id", async (req: Request, res: Response) => {
-    const id: number = Number(req.params.id)
-    findMeasurementById(id, (err: Error, measurement: MeasurementModel) => {
-        if (err) {
-            return res.status(500).json({
-                msg: err.message
-            });
-        } else if (!measurement) {
-            res.status(404).json({
-                msg: "Not found!"
-            })
-        } else res.status(200).json(measurement);
-    })
+    if (isNaN(Number(req.params.id))) {
+        res.status(401).json({
+            msg: "Bad request!"
+        })
+    } else {
+        const id: number = Number(req.params.id)
+        measureServiceInterface.findMeasurementById(id, (err: Error, measurement: MeasurementModel) => {
+            if (err) {
+                return res.status(500).json({
+                    msg: err.message
+                });
+            } else if (!measurement) {
+                res.status(404).json({
+                    msg: "Not found!"
+                })
+            } else res.status(200).json(measurement);
+        })
+    }
 })
 
 measurementRouter.post(CommonConfig.BASE_URL + "/measurement", async (req: Request, res: Response) => {
     const insertedMeasurement = req.body.data as MeasurementModel
-    insertMeasurement(insertedMeasurement, (err: Error, insertedId: number) => {
+    measureServiceInterface.insertMeasurement(insertedMeasurement, (err: Error, insertedId: number) => {
         if (err) {
             return res.status(500).json({
                 msg: err.message
@@ -54,7 +57,7 @@ measurementRouter.post(CommonConfig.BASE_URL + "/measurement", async (req: Reque
 
 measurementRouter.put(CommonConfig.BASE_URL + "/measurement", async (req: Request, res: Response) => {
     const updatedMeasurement = req.body.data as MeasurementModel
-    updateMeasurementById(updatedMeasurement, (err: Error, changedRows: number) => {
+    measureServiceInterface.updateMeasurementById(updatedMeasurement, (err: Error, changedRows: number) => {
         if (err) {
             return res.status(500).json({
                 msg: err.message
@@ -66,8 +69,7 @@ measurementRouter.put(CommonConfig.BASE_URL + "/measurement", async (req: Reques
 
 measurementRouter.delete(CommonConfig.BASE_URL + "/measurement", async (req: Request, res: Response) => {
     const deleteIdArr = req.body.data as Array<number>
-
-    deleteMeasurementById(deleteIdArr, (err: Error, affectedRows: number) => {
+    measureServiceInterface.deleteMeasurementById(deleteIdArr, (err: Error, affectedRows: number) => {
         if (err) {
             return res.status(500).json({
                 msg: err.message
